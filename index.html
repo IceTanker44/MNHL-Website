@@ -40,15 +40,25 @@
             <button class="btn-scores" onclick="sendData('/api/scores', { homeTeam: document.getElementById('homeTeam').value, homeScore: document.getElementById('homeScore').value, awayTeam: document.getElementById('awayTeam').value, awayScore: document.getElementById('awayScore').value })">Broadcast Score</button>
         </div>
 
-        <!-- Schedule -->
+              <!-- Schedule (Upgraded for Multi-Game) -->
         <div class="card">
-            <div><h2 class="sched-title">📅 Match Scheduler</h2>
-                <div class="form-group"><label>Matchup (Team vs Team)</label><input type="text" id="schedMatch" placeholder="Kings vs Pearls"></div>
-                <div class="form-group"><label>Date & Time</label><input type="text" id="schedTime" placeholder="Saturday at 7 PM EST"></div>
-                <div class="form-group"><label>Rink / Arena Location</label><input type="text" id="schedRink" placeholder="Nether Arena"></div>
+            <div>
+                <h2 class="sched-title">📅 Match Day Scheduler</h2>
+                <div class="form-group">
+                    <label>Matchday Date / Title</label>
+                    <input type="text" id="schedDate" placeholder="e.g., Saturday, Oct 24th">
+                </div>
+                <div class="form-group">
+                    <label>Games List (One per line format: Team vs Team | Time)</label>
+                    <textarea id="schedGames" style="height: 120px;" placeholder="Kings vs Pearls | 7:00 PM EST&#10;Rangers vs Sharks | 8:00 PM EST&#10;Knights vs Blitz | 9:00 PM EST"></textarea>
+                </div>
             </div>
-            <button class="btn-sched" onclick="sendData('/api/schedule', { matchup: document.getElementById('schedMatch').value, time: document.getElementById('schedTime').value, rink: document.getElementById('schedRink').value })">Post Schedule</button>
+            <button class="btn-sched" onclick="sendData('/api/schedule', { 
+                dateTitle: document.getElementById('schedDate').value, 
+                gamesList: document.getElementById('schedGames').value 
+            })">Post Schedule Board</button>
         </div>
+
 
         <!-- Standings / Leaderboard -->
         <div class="card">
