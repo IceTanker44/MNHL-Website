@@ -101,18 +101,83 @@
         </div>
     </div>
     <script>
-        const BACKEND_URL = "http://localhost:3000";
+         // 1. CREATE AND PASTE YOUR ACTUAL DISCORD CHANNEL WEBHOOK URLS INSIDE THESE QUOTES:
+    const WEBHOOKS = {
+            scores: "YOUR_SCORES_WEBHOOK_URL",
+            schedule: "YOUR_SCHEDULE_WEBHOOK_URL",
+            gameday: "YOUR_GAMEDAY_WEBHOOK_URL",
+            standings: "YOUR_STANDINGS_WEBHOOK_URL",
+            statistics: "YOUR_STATS_WEBHOOK_URL",
+            transactions: "YOUR_TRANSACTIONS_WEBHOOK_URL",
+            leaguenews: "YOUR_LEAGUE_NEWS_WEBHOOK_URL",
+            servernews: "YOUR_SERVER_NEWS_WEBHOOK_URL"
+        };
 
+        // 2. Direct Webhook Sender Function (Bypasses localhost computer blocks entirely!)
         async function sendData(endpoint, payload) {
             if (Object.values(payload).some(v => v === "")) { alert("Please complete all inputs!"); return; }
-            try {
-                const response = await fetch(`${BACKEND_URL}${endpoint}`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+            
+            const type = endpoint.replace('/api/', '');
+            let webhookUrl = WEBHOOKS[type];
+            
+            if (type === 'news') webhookUrl = WEBHOOKS[payload.newsType];
+
+            if (!webhookUrl || webhookUrl.includes("YOUR_")) {
+                alert(`Please paste your actual Discord channel Webhook URL for [${type}] inside the code first!`);
+                return;
+            }
+
+            // Build out a clean Discord native layout embed structure matching your desired properties
+            let embed = { title: "🏒 MNHL Automated Update", color: 3447003, fields: [], timestamp: new Date() };
+
+            if (type === 'scores') {
+                embed.title = "🏆 MNHL Match Score Update";
+                embed.fields = [
+                    { name: "🏠 Home Team", value: `**${payload.homeTeam}**\nScore: ${payload.homeScore}`, inline: true },
+                    { name: "✈️ Away Team", value: `**${payload.awayTeam}**\nScore: ${payload.awayScore}`, inline: true }
+                ];
+            } else if (type === 'schedule') {
+                embed.title = `📅 MNHL Schedule • ${payload.dateTitle}`;
+                embed.color = 5635925; // Hockey Green
+                payload.gamesList.split('\n').filter(l => l.trim() !== "").forEach((line) => {
+                    if (line.includes('|')) {
+                        const parts = line.split('|');
+                        embed.fields.push({ name: `🏒 ${parts[0].trim()}`, value: `**${parts[1].trim()}**`, inline: false });
+                    } else {
+                        embed.fields.push({ name: `🏒 Matchup`, value: line.trim(), inline: false });
+                    }
                 });
-                if(response.ok) alert("🚀 Announcement successfully beamed to Discord!");
-                else alert("Server communication error occurred.");
-            } catch (e) { alert("Could not reach backend. Verify bot.js terminal is running!"); }
+            } else if (type === 'gameday') {
+                embed.title = `🎮 MNHL LIVE MATCH ALERT • ${payload.title}`;
+                embed.description = "🚨 **The following matchups are taking place today! Prepare your rosters.**";
+                embed.color = 16733525; // Hype Red
+                payload.games.split('\n').filter(l => l.trim() !== "").forEach((g, i) => {
+                    embed.fields.push({ name: `Match ${i + 1}`, value: `⚡ **${g.trim()}**`, inline: false });
+                });
+            } else if (type === 'transactions') {
+                embed.title = "🚨 MNHL Roster Transaction";
+                embed.color = 16755200; // Orange
+                embed.description = `🔄 **Trade finalized between ${payload.teamOne} & ${payload.teamTwo}!**\n\n📋 **Details:** ${payload.tradeDetails}`;
+            } else if (type === 'news') {
+                embed.title = `📢 ${payload.title}`;
+                embed.color = payload.newsType === 'leaguenews' ? 16711765 : 7506394;
+                embed.description = payload.content;
+            } else if (type === 'standings') {
+                embed.title = "📊 Standings Board Update";
+                embed.fields = [{ name: 'Team', value: `🛡️ ${payload.team}`, inline: true }, { name: 'Record', value: `📝 ${payload.record}`, inline: true }, { name: 'Points', value: `✨ ${payload.points} PTS`, inline: true }];
+            } else if (type === 'statistics') {
+                embed.title = "📈 Player Stat Spotlight";
+                embed.color = 11163135; // Purple
+                embed.fields = [{ name: 'Athlete', value: `🏃 ${payload.player}`, inline: true }, { name: 'Category', value: `🎯 ${payload.type}`, inline: true }, { name: 'Total', value: `🔥 ${payload.value}`, inline: true }];
+            }
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ embeds: [embed] })
+                });
+                if (response.ok) alert("🚀 Announcement successfully beamed straight to Discord!");
+                else alert("Discord webhook rejected the transmission.");
+            } catch (e) { alert("Network error reaching Discord endpoints."); }
         }
-    </script>
-</body>
-</html>
