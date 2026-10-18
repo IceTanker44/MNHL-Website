@@ -181,3 +181,213 @@
                 else alert("Discord webhook rejected the transmission.");
             } catch (e) { alert("Network error reaching Discord endpoints."); }
         }
+                </div>
+    </div>
+
+    <script>
+        async function sendData(endpoint, payload) {
+            if (Object.values(payload).some(v => v === "")) { alert("Please complete all inputs!"); return; }
+            
+            const type = endpoint.replace('/api/', '');
+            let webhookUrl = WEBHOOKS[type];
+            if (type === 'news') webhookUrl = WEBHOOKS[payload.newsType];
+
+            if (!webhookUrl || webhookUrl.includes("YOUR_")) {
+                alert(`Missing webhook URL string configuration setup target for [${type}].`);
+                return;
+            }
+
+            let embed = { title: "🏒 MNHL Automated Update", color: 3447003, fields: [], timestamp: new Date() };
+
+            if (type === 'scores') {
+                embed.title = "🏆 MNHL Match Score Update";
+                embed.fields = [
+                    { name: "🏠 Home Team", value: `**${payload.homeTeam}**\nScore: ${payload.homeScore}`, inline: true },
+                    { name: "✈️ Away Team", value: `**${payload.awayTeam}**\nScore: ${payload.awayScore}`, inline: true }
+                ];
+            } else if (type === 'schedule') {
+                embed.title = `📅 MNHL Schedule • ${payload.dateTitle}`;
+                embed.color = 5635925;
+                payload.gamesList.split('\n').filter(l => l.trim() !== "").forEach((line) => {
+                    if (line.includes('|')) {
+                        const parts = line.split('|');
+                        embed.fields.push({ name: `🏒 ${parts[0].trim()}`, value: `**${parts[1].trim()}**`, inline: false });
+                    } else {
+                        embed.fields.push({ name: `🏒 Matchup`, value: line.trim(), inline: false });
+                    }
+                });
+            } else if (type === 'gameday') {
+                embed.title = `🎮 MNHL LIVE MATCH ALERT • ${payload.title}`;
+                embed.description = "🚨 **The following matchups are taking place today! Prepare your rosters.**";
+                embed.color = 16733525;
+                payload.games.split('\n').filter(l => l.trim() !== "").forEach((g, i) => {
+                    embed.fields.push({ name: `Match ${i + 1}`, value: `⚡ **${g.trim()}**`, inline: false });
+                });
+            } else if (type === 'transactions') {
+                embed.title = "🚨 MNHL Roster Transaction";
+                embed.color = 16755200;
+                embed.description = `🔄 **Trade finalized between ${payload.teamOne} & ${payload.teamTwo}!**\n\n📋 **Details:** ${payload.tradeDetails}`;
+            } else if (type === 'news') {
+                embed.title = `📢 ${payload.title}`;
+                embed.color = payload.newsType === 'leaguenews' ? 16711765 : 7506394;
+                embed.description = payload.content;
+            } else if (type === 'standings') {
+                embed.title = "📊 Standings Board Update";
+                embed.fields = [{ name: 'Team', value: `🛡️ ${payload.team}`, inline: true }, { name: 'Record', value: `📝 ${payload.record}`, inline: true }, { name: 'Points', value: `✨ ${payload.points} PTS`, inline: true }];
+            } else if (type === 'statistics') {
+                embed.title = "📈 Player Stat Spotlight";
+                embed.color = 11163135;
+                embed.fields = [{ name: 'Athlete', value: `🏃 ${payload.player}`, inline: true }, { name: 'Category', value: `🎯 ${payload.type}`, inline: true }, { name: 'Total', value: `🔥 ${payload.value}`, inline: true }];
+            }
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ embeds: [embed] })
+                });
+                if (response.ok) alert("🚀 Announcement successfully beamed straight to Discord!");
+                else alert("Discord webhook rejected the transmission.");
+            } catch (e) { alert("Network error reaching Discord endpoints."); }
+        }
+            </div>
+    </div>
+
+    <script>
+        async function sendData(endpoint, payload) {
+            if (Object.values(payload).some(v => v === "")) { alert("Please complete all inputs!"); return; }
+            
+            const type = endpoint.replace('/api/', '');
+            let webhookUrl = WEBHOOKS[type];
+            if (type === 'news') webhookUrl = WEBHOOKS[payload.newsType];
+
+            if (!webhookUrl || webhookUrl.includes("YOUR_")) {
+                alert(`Missing webhook URL string configuration setup target for [${type}].`);
+                return;
+            }
+
+            let embed = { title: "🏒 MNHL Automated Update", color: 3447003, fields: [], timestamp: new Date() };
+
+            if (type === 'scores') {
+                embed.title = "🏆 MNHL Match Score Update";
+                embed.fields = [
+                    { name: "🏠 Home Team", value: `**${payload.homeTeam}**\nScore: ${payload.homeScore}`, inline: true },
+                    { name: "✈️ Away Team", value: `**${payload.awayTeam}**\nScore: ${payload.awayScore}`, inline: true }
+                ];
+            } else if (type === 'schedule') {
+                embed.title = `📅 MNHL Schedule • ${payload.dateTitle}`;
+                embed.color = 5635925;
+                payload.gamesList.split('\n').filter(l => l.trim() !== "").forEach((line) => {
+                    if (line.includes('|')) {
+                        const parts = line.split('|');
+                        embed.fields.push({ name: `🏒 ${parts[0].trim()}`, value: `**${parts[1].trim()}**`, inline: false });
+                    } else {
+                        embed.fields.push({ name: `🏒 Matchup`, value: line.trim(), inline: false });
+                    }
+                });
+            } else if (type === 'gameday') {
+                embed.title = `🎮 MNHL LIVE MATCH ALERT • ${payload.title}`;
+                embed.description = "🚨 **The following matchups are taking place today! Prepare your rosters.**";
+                embed.color = 16733525;
+                payload.games.split('\n').filter(l => l.trim() !== "").forEach((g, i) => {
+                    embed.fields.push({ name: `Match ${i + 1}`, value: `⚡ **${g.trim()}**`, inline: false });
+                });
+            } else if (type === 'transactions') {
+                embed.title = "🚨 MNHL Roster Transaction";
+                embed.color = 16755200;
+                embed.description = `🔄 **Trade finalized between ${payload.teamOne} & ${payload.teamTwo}!**\n\n📋 **Details:** ${payload.tradeDetails}`;
+            } else if (type === 'news') {
+                embed.title = `📢 ${payload.title}`;
+                embed.color = payload.newsType === 'leaguenews' ? 16711765 : 7506394;
+                embed.description = payload.content;
+            } else if (type === 'standings') {
+                embed.title = "📊 Standings Board Update";
+                embed.fields = [{ name: 'Team', value: `🛡️ ${payload.team}`, inline: true }, { name: 'Record', value: `📝 ${payload.record}`, inline: true }, { name: 'Points', value: `✨ ${payload.points} PTS`, inline: true }];
+            } else if (type === 'statistics') {
+                embed.title = "📈 Player Stat Spotlight";
+                embed.color = 11163135;
+                embed.fields = [{ name: 'Athlete', value: `🏃 ${payload.player}`, inline: true }, { name: 'Category', value: `🎯 ${payload.type}`, inline: true }, { name: 'Total', value: `🔥 ${payload.value}`, inline: true }];
+            }
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ embeds: [embed] })
+                });
+                if (response.ok) alert("🚀 Announcement successfully beamed straight to Discord!");
+                else alert("Discord webhook rejected the transmission.");
+            } catch (e) { alert("Network error reaching Discord endpoints."); }
+        }
+                </div>
+    </div>
+
+    <script>
+        async function sendData(endpoint, payload) {
+            if (Object.values(payload).some(v => v === "")) { alert("Please complete all inputs!"); return; }
+            
+            const type = endpoint.replace('/api/', '');
+            let webhookUrl = WEBHOOKS[type];
+            if (type === 'news') webhookUrl = WEBHOOKS[payload.newsType];
+
+            if (!webhookUrl || webhookUrl.includes("YOUR_")) {
+                alert(`Missing webhook URL string configuration setup target for [${type}].`);
+                return;
+            }
+
+            let embed = { title: "🏒 MNHL Automated Update", color: 3447003, fields: [], timestamp: new Date() };
+
+            if (type === 'scores') {
+                embed.title = "🏆 MNHL Match Score Update";
+                embed.fields = [
+                    { name: "🏠 Home Team", value: `**${payload.homeTeam}**\nScore: ${payload.homeScore}`, inline: true },
+                    { name: "✈️ Away Team", value: `**${payload.awayTeam}**\nScore: ${payload.awayScore}`, inline: true }
+                ];
+            } else if (type === 'schedule') {
+                embed.title = `📅 MNHL Schedule • ${payload.dateTitle}`;
+                embed.color = 5635925;
+                payload.gamesList.split('\n').filter(l => l.trim() !== "").forEach((line) => {
+                    if (line.includes('|')) {
+                        const parts = line.split('|');
+                        embed.fields.push({ name: `🏒 ${parts[0].trim()}`, value: `**${parts[1].trim()}**`, inline: false });
+                    } else {
+                        embed.fields.push({ name: `🏒 Matchup`, value: line.trim(), inline: false });
+                    }
+                });
+            } else if (type === 'gameday') {
+                embed.title = `🎮 MNHL LIVE MATCH ALERT • ${payload.title}`;
+                embed.description = "🚨 **The following matchups are taking place today! Prepare your rosters.**";
+                embed.color = 16733525;
+                payload.games.split('\n').filter(l => l.trim() !== "").forEach((g, i) => {
+                    embed.fields.push({ name: `Match ${i + 1}`, value: `⚡ **${g.trim()}**`, inline: false });
+                });
+            } else if (type === 'transactions') {
+                embed.title = "🚨 MNHL Roster Transaction";
+                embed.color = 16755200;
+                embed.description = `🔄 **Trade finalized between ${payload.teamOne} & ${payload.teamTwo}!**\n\n📋 **Details:** ${payload.tradeDetails}`;
+            } else if (type === 'news') {
+                embed.title = `📢 ${payload.title}`;
+                embed.color = payload.newsType === 'leaguenews' ? 16711765 : 7506394;
+                embed.description = payload.content;
+            } else if (type === 'standings') {
+                embed.title = "📊 Standings Board Update";
+                embed.fields = [{ name: 'Team', value: `🛡️ ${payload.team}`, inline: true }, { name: 'Record', value: `📝 ${payload.record}`, inline: true }, { name: 'Points', value: `✨ ${payload.points} PTS`, inline: true }];
+            } else if (type === 'statistics') {
+                embed.title = "📈 Player Stat Spotlight";
+                embed.color = 11163135;
+                embed.fields = [{ name: 'Athlete', value: `🏃 ${payload.player}`, inline: true }, { name: 'Category', value: `🎯 ${payload.type}`, inline: true }, { name: 'Total', value: `🔥 ${payload.value}`, inline: true }];
+            }
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ embeds: [embed] })
+                });
+                if (response.ok) alert("🚀 Announcement successfully beamed straight to Discord!");
+                else alert("Discord webhook rejected the transmission.");
+            } catch (e) { alert("Network error reaching Discord endpoints."); }
+        }
+        </script>
+</body>
+</html>
