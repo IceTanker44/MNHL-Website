@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MNHL - Minecraft Hockey League</title>
+    <title>MNHL - League Control Center</title>
     <style>
         :root {
             --bg-color: #121214;
@@ -11,9 +11,11 @@
             --accent-color: #00bcc6;
             --text-color: #ffffff;
             --text-muted: #a0a0a5;
+            --trade-color: #ffaa00;
+            --news-color: #ff0055;
         }
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -32,49 +34,35 @@
             font-weight: bold;
             color: var(--accent-color);
         }
-        nav .nav-links a {
-            color: var(--text-color);
-            text-decoration: none;
-            margin-left: 20px;
-            font-weight: 500;
-        }
         .container {
             max-width: 1200px;
             margin: 40px auto;
             padding: 0 20px;
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
-        }
-        @media (max-width: 768px) {
-            .container { grid-template-columns: 1fr; }
         }
         .card {
             background-color: var(--card-color);
             border-radius: 8px;
             padding: 25px;
             border: 1px solid #2a2a30;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
         h2 {
             margin-top: 0;
-            color: var(--accent-color);
-            border-bottom: 1px solid #2a2a30;
             padding-bottom: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th, td {
-            text-align: left;
-            padding: 12px;
             border-bottom: 1px solid #2a2a30;
         }
-        th { color: var(--text-muted); }
+        .scores-title { color: var(--accent-color); }
+        .trades-title { color: var(--trade-color); }
+        .news-title { color: var(--news-color); }
+        
         .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: var(--text-muted); }
-        input {
+        label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 14px; }
+        input, textarea, select {
             width: 100%;
             padding: 10px;
             box-sizing: border-box;
@@ -82,9 +70,14 @@
             border: 1px solid #3a3a42;
             color: white;
             border-radius: 4px;
+            font-family: inherit;
         }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #666;
+        }
+        textarea { resize: vertical; height: 80px; }
         button {
-            background-color: var(--accent-color);
             color: black;
             font-weight: bold;
             border: none;
@@ -92,63 +85,131 @@
             border-radius: 4px;
             cursor: pointer;
             width: 100%;
+            font-size: 15px;
+            transition: opacity 0.2s;
         }
+        button:hover { opacity: 0.9; }
+        .btn-scores { background-color: var(--accent-color); }
+        .btn-trades { background-color: var(--trade-color); }
+        .btn-news { background-color: var(--news-color); color: white; }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="logo">🏒 MNHL LEAGUE</div>
-        <div class="nav-links">
-            <a href="#">Standings</a>
-            <a href="#">Rosters</a>
-        </div>
+        <div class="logo">🏒 MNHL AUTOMATED CONTROL CENTER</div>
     </nav>
 
     <div class="container">
+        <!-- Panel 1: Match Score Broadcast -->
         <div class="card">
-            <h2>League Standings</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Team Name</th>
-                        <th>Wins</th>
-                        <th>Losses</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td><strong>Nether Ice Kings</strong></td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>
-                </tbody>
-            </table>
+            <div>
+                <h2 class="scores-title">🏆 Match Score Reporter</h2>
+                <div class="form-group">
+                    <label>Home Team</label>
+                    <input type="text" id="homeTeam" placeholder="e.g., Nether Kings">
+                </div>
+                <div class="form-group">
+                    <label>Home Score</label>
+                    <input type="number" id="homeScore" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Away Team</label>
+                    <input type="text" id="awayTeam" placeholder="e.g., Ender Pearls">
+                </div>
+                <div class="form-group">
+                    <label>Away Score</label>
+                    <input type="number" id="awayScore" placeholder="0">
+                </div>
+            </div>
+            <button class="btn-scores" onclick="sendData('/api/scores', {
+                homeTeam: document.getElementById('homeTeam').value,
+                homeScore: document.getElementById('homeScore').value,
+                awayTeam: document.getElementById('awayTeam').value,
+                awayScore: document.getElementById('awayScore').value
+            })">Broadcast Score</button>
         </div>
 
+        <!-- Panel 2: Transaction / Trade Processor -->
         <div class="card">
-            <h2>Admin Score Reporter</h2>
-            <div class="form-group">
-                <label>Home Team</label>
-                <input type="text" id="homeTeam">
+            <div>
+                <h2 class="trades-title">🔄 Roster Transaction</h2>
+                <div class="form-group">
+                    <label>Team 1 (Sender)</label>
+                    <input type="text" id="teamOne" placeholder="e.g., Redstone Rangers">
+                </div>
+                <div class="form-group">
+                    <label>Team 2 (Receiver)</label>
+                    <input type="text" id="teamTwo" placeholder="e.g., Ice Kings">
+                </div>
+                <div class="form-group">
+                    <label>Roster Movements & Details</label>
+                    <textarea id="tradeDetails" placeholder="e.g., PlayerX traded for a Season 2 Draft Pick."></textarea>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Home Score</label>
-                <input type="number" id="homeScore">
+            <button class="btn-trades" onclick="sendData('/api/transactions', {
+                teamOne: document.getElementById('teamOne').value,
+                teamTwo: document.getElementById('teamTwo').value,
+                tradeDetails: document.getElementById('tradeDetails').value
+            })">Process Transaction</button>
+        </div>
+
+        <!-- Panel 3: Broadcast News Wire -->
+        <div class="card">
+            <div>
+                <h2 class="news-title">📢 League News Wire</h2>
+                <div class="form-group">
+                    <label>Target News Feed</label>
+                    <select id="newsType">
+                        <option value="leaguenews">🚨 league-news</option>
+                        <option value="servernews">💻 server-news</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Headline Title</label>
+                    <input type="text" id="newsTitle" placeholder="e.g., Season 2 Tryout Dates Announced">
+                </div>
+                <div class="form-group">
+                    <label>Article Content / Message</label>
+                    <textarea id="newsContent" placeholder="Write your full announcement message here..."></textarea>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Away Team</label>
-                <input type="text" id="awayTeam">
-            </div>
-            <div class="form-group">
-                <label>Away Score</label>
-                <input type="number" id="awayScore">
-            </div>
-            <button onclick="alert('Website is live! We will connect the bot next.')">Broadcast Score</button>
+            <button class="btn-news" onclick="sendData('/api/news', {
+                newsType: document.getElementById('newsType').value,
+                title: document.getElementById('newsTitle').value,
+                content: document.getElementById('newsContent').value
+            })">Publish Article</button>
         </div>
     </div>
 
+    <script>
+        // Automatic universal function that posts web data directly to your local bot server
+        async function sendData(endpoint, payload) {
+            // Quick check to see if required parameters are filled
+            if (Object.values(payload).some(value => value === "")) {
+                alert("Please fill out all the input fields in this box first!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:3000${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                if(response.ok) {
+                    alert("🚀 Broadcast successfully beamed to your synced Discord channel!");
+                } else {
+                    const err = await response.json();
+                    alert(`Server Error: ${err.error || 'Failed to post.'}`);
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Could not connect to your local bot. Make sure your VS Code terminal is running 'node bot.js'!");
+            }
+        }
+    </script>
 </body>
 </html>
+
