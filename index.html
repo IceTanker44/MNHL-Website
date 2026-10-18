@@ -3,118 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MNHL - Complete Master Dashboard</title>
+    <title>MNHL - Minecraft Hockey League Portal</title>
     <style>
         :root {
-            --bg-color: #121214; --card-color: #1a1a1e; --accent-color: #00bcc6;
-            --text-color: #ffffff; --text-muted: #a0a0a5; --trade-color: #ffaa00;
-            --news-color: #ff0055; --sched-color: #55ff55; --stats-color: #aa55ff;
+            --bg-color: #121214;
+            --card-color: #1a1a1e;
+            --accent-color: #00bcc6; /* MNHL Custom Teal */
+            --text-color: #ffffff;
+            --text-muted: #a0a0a5;
         }
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 0; }
-        nav { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-color); padding: 15px 30px; border-bottom: 2px solid #2a2a30; }
-        nav .logo { font-size: 24px; font-weight: bold; color: var(--accent-color); }
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
-        .card { background-color: var(--card-color); border-radius: 8px; padding: 25px; border: 1px solid #2a2a30; display: flex; flex-direction: column; justify-content: space-between; }
-        h2 { margin-top: 0; padding-bottom: 10px; border-bottom: 1px solid #2a2a30; }
-        .scores-title { color: var(--accent-color); } .trades-title { color: var(--trade-color); }
-        .news-title { color: var(--news-color); } .sched-title { color: var(--sched-color); } .stats-title { color: var(--stats-color); }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 14px; }
-        input, textarea, select { width: 100%; padding: 10px; box-sizing: border-box; background-color: #121214; border: 1px solid #3a3a42; color: white; border-radius: 4px; font-family: inherit; }
-        textarea { resize: vertical; height: 100px; }
-        button { color: black; font-weight: bold; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 15px; transition: opacity 0.2s; }
-        button:hover { opacity: 0.9; }
-        .btn-scores { background-color: var(--accent-color); } .btn-trades { background-color: var(--trade-color); }
-        .btn-news { background-color: var(--news-color); color: white; } .btn-sched { background-color: var(--sched-color); } .btn-stats { background-color: var(--stats-color); color: white; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+        /* Navigation Bar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--card-color);
+            padding: 15px 30px;
+            border-bottom: 2px solid #2a2a30;
+        }
+        nav .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        nav .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        nav .nav-links a:hover {
+            color: var(--accent-color);
+        }
+        /* Main Layout Grid */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        @media (max-width: 768px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        /* Grid Cards */
+        .card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            padding: 25px;
+            border: 1px solid #2a2a30;
+            margin-bottom: 30px;
+        }
+        h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+            border-bottom: 1px solid #2a2a30;
+            padding-bottom: 10px;
+        }
+        /* Standings Leaderboard Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #2a2a30;
+        }
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        tr:hover {
+            background-color: #222226;
+        }
+        /* Style elements for public bulletins */
+        .bulletin {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+        .bulletin-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .bulletin-date {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
-    <nav><div class="logo">🏒 MNHL ULTIMATE MASTER PANEL</div></nav>
+
+    <!-- Public Top Header Navigation Links -->
+    <nav>
+        <div class="logo">🏒 MNHL PORTAL</div>
+        <div class="nav-links">
+            <a href="#standings">Standings</a>
+            <a href="#bulletin-board">News Board</a>
+            <a href="https://discord.gg" target="_blank">Join Discord</a>
+        </div>
+    </nav>
+
+    <!-- Main Public Layout Window -->
     <div class="container">
-        <!-- Match Score -->
-        <div class="card">
-            <div><h2 class="scores-title">🏆 Match Score Reporter</h2>
-                <div class="form-group"><label>Home Team</label><input type="text" id="homeTeam" placeholder="e.g., Nether Kings"></div>
-                <div class="form-group"><label>Home Score</label><input type="number" id="homeScore" placeholder="0"></div>
-                <div class="form-group"><label>Away Team</label><input type="text" id="awayTeam" placeholder="e.g., Ender Pearls"></div>
-                <div class="form-group"><label>Away Score</label><input type="number" id="awayScore" placeholder="0"></div>
+        
+        <!-- Left Sidebar Main Feed: Leaderboards & Schedules -->
+        <div>
+            <div class="card" id="standings">
+                <h2>League Leaderboard Standings</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Franchise Team</th>
+                            <th>Record (W-L-T)</th>
+                            <th>PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><strong>Renegades</strong></td>
+                            <td>0-0-0</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><strong>Maple Leafs</strong></td>
+                            <td>0-0-0</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><strong>Krakens</strong></td>
+                            <td>0-0-0</td>
+                            <td>0</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td><strong>Kings</strong></td>
+                            <td>0-0-0</td>
+                            <td>0</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <button class="btn-scores" onclick="sendData('/api/scores', { homeTeam: document.getElementById('homeTeam').value, homeScore: document.getElementById('homeScore').value, awayTeam: document.getElementById('awayTeam').value, awayScore: document.getElementById('awayScore').value })">Broadcast Score</button>
         </div>
 
-        <!-- Weekly Schedule Notice Board -->
-        <div class="card">
-            <div><h2 class="sched-title">📅 Matchday Scheduler</h2>
-                <div class="form-group"><label>Schedule Title</label><input type="text" id="schedDate" placeholder="e.g., Pre-Season Schedule"></div>
-                <div class="form-group"><label>Games List (Format: Game X | Team @ Team)</label><textarea id="schedGames" placeholder="Game 1 | Renegades @ Maple Leafs&#10;Game 2 | Krakens @ Kings"></textarea></div>
+        <!-- Right Sidebar Secondary Panel: News Bulletin Wire Feed -->
+        <div id="bulletin-board">
+            <div class="card">
+                <h2>League Bulletins</h2>
+                <div class="bulletin">
+                    <div class="bulletin-title">Welcome to MNHL Season 1!</div>
+                    <div class="bulletin-date">Inaugural Launch Notice</div>
+                    <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Rosters are lock-in schedules are compiling. Matches starting soon!</p>
+                </div>
             </div>
-            <button class="btn-sched" onclick="sendData('/api/schedule', { dateTitle: document.getElementById('schedDate').value, gamesList: document.getElementById('schedGames').value })">Post Schedule Board</button>
         </div>
 
-        <!-- Active Game Day Announcer -->
-        <div class="card">
-            <div><h2 style="color: #ff5555;">🎮 Game Day Broadcaster</h2>
-                <div class="form-group"><label>Today's Banner / Notice</label><input type="text" id="gdTitle" placeholder="e.g., Pre-Season Game Day!"></div>
-                <div class="form-group"><label>Active Games Today (One per line)</label><textarea id="gdGames" placeholder="Renegades @ Kings&#10;Maple Leafs @ Krakens"></textarea></div>
-            </div>
-            <button style="background-color: #ff5555; color: white;" onclick="sendData('/api/gameday', { title: document.getElementById('gdTitle').value, games: document.getElementById('gdGames').value })">Broadcast Game Day</button>
-        </div>
-
-        <!-- Standings Board -->
-        <div class="card">
-            <div><h2 class="scores-title">📊 Standings Board</h2>
-                <div class="form-group"><label>Team Name</label><input type="text" id="standTeam" placeholder="e.g., Renegades"></div>
-                <div class="form-group"><label>New Record (W-L-T)</label><input type="text" id="standRecord" placeholder="4-1-0"></div>
-                <div class="form-group"><label>Total Points</label><input type="number" id="standPoints" placeholder="8"></div>
-            </div>
-            <button class="btn-scores" onclick="sendData('/api/standings', { team: document.getElementById('standTeam').value, record: document.getElementById('standRecord').value, points: document.getElementById('standPoints').value })">Update Standings</button>
-        </div>
-
-        <!-- Player Statistics Spotlight -->
-        <div class="card">
-            <div><h2 class="stats-title">📈 Performance Stats</h2>
-                <div class="form-group"><label>Player Username</label><input type="text" id="statPlayer" placeholder="e.g., IceTanker44"></div>
-                <div class="form-group"><label>Stat Category</label><select id="statType"><option value="Goals">Goals</option><option value="Assists">Assists</option><option value="Saves">Goalie Saves</option></select></div>
-                <div class="form-group"><label>Total Value</label><input type="number" id="statValue" placeholder="12"></div>
-            </div>
-            <button class="btn-stats" onclick="sendData('/api/statistics', { player: document.getElementById('statPlayer').value, type: document.getElementById('statType').value, value: document.getElementById('statValue').value })">Spotlight Stat</button>
-        </div>
-
-        <!-- Roster Transactions -->
-        <div class="card">
-            <div><h2 class="trades-title">🔄 Roster Transaction</h2>
-                <div class="form-group"><label>Team 1</label><input type="text" id="teamOne" placeholder="e.g., Renegades"></div>
-                <div class="form-group"><label>Team 2</label><input type="text" id="teamTwo" placeholder="e.g., Maple Leafs"></div>
-                <div class="form-group"><label>Movement Details</label><textarea id="tradeDetails" placeholder="Player1 traded to Team2 for a draft pick."></textarea></div>
-            </div>
-            <button class="btn-trades" onclick="sendData('/api/transactions', { teamOne: document.getElementById('teamOne').value, teamTwo: document.getElementById('teamTwo').value, tradeDetails: document.getElementById('tradeDetails').value })">Process Trade</button>
-        </div>
-
-        <!-- League & Server News -->
-        <div class="card">
-            <div><h2 class="news-title">📢 MNHL News Wire</h2>
-                <div class="form-group"><label>Target Feed</label><select id="newsType"><option value="leaguenews">league-news</option><option value="servernews">server-news</option></select></div>
-                <div class="form-group"><label>Headline</label><input type="text" id="newsTitle" placeholder="Weekly Recap Article"></div>
-                <div class="form-group"><label>Content</label><textarea id="newsContent" placeholder="Write full article message here..."></textarea></div>
-            </div>
-            <button class="btn-news" onclick="sendData('/api/news', { newsType: document.getElementById('newsType').value, title: document.getElementById('newsTitle').value, content: document.getElementById('newsContent').value })">Publish News</button>
-        </div>
     </div>
-    <script>
-        // CHANGE THIS LOCALHOST ADDRESS TO YOUR RENDER URL ONCE GENERATED
-        const BACKEND_URL = "http://localhost:3000";
 
-        async function sendData(endpoint, payload) {
-            if (Object.values(payload).some(v => v === "")) { alert("Please complete all inputs!"); return; }
-            try {
-                const response = await fetch(`${BACKEND_URL}${endpoint}`, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-                });
-                if(response.ok) alert("🚀 Announcement successfully beamed to Discord!");
-                else alert("Server communication error occurred.");
-            } catch (e) { alert("Could not reach backend. Verify bot.js terminal is running!"); }
-        }
-    </script>
 </body>
 </html>
 
